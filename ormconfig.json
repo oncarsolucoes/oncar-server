@@ -1,0 +1,17 @@
+{
+    "type": "mysql",
+    "database": "oncardb",
+    "host": "18.231.12.249",
+    "username": "root",
+    "password": "TuWX0Bq}C9DM",
+    "port": "3306",
+    "migrations": [
+        "./src/database/migrations/*.ts"
+    ],
+    "entities": [
+        "./src/models/*.ts"
+    ],
+    "cli": {
+        "migrations": "./src/database/migrations"
+    }
+} 
