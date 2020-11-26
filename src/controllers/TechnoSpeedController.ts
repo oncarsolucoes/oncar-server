@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Payers from '../models/Payers';
+import PayerAccount from "../models/PayerAccount";
 import { getRepository } from 'typeorm';
 
 import apiTechno from '../services/apiTechno';
@@ -7,6 +8,8 @@ export default {
   async createPayer(request: Request, response: Response) {
     try {
 			const payerRepository = getRepository(Payers);
+			const payerAccountRepository = getRepository(PayerAccount);
+
 			const data = await request.body;
 
 			const res = await apiTechno.post('/payer', data, {
@@ -28,6 +31,7 @@ export default {
 					state,
 					zipcode,
 					token,
+					accounts
 				} = res.data;
 				try {
 
@@ -43,13 +47,29 @@ export default {
             token,
 					});
 
-					await payerRepository.save(payer);
+					var payerAccountResult = [];
+					accounts.map(acc => {
+						const payerAccount = payerAccountRepository.create({
+							payer_id: payer.id,
+              bankCode: acc.bankCode,
+              agency: acc.agency,
+              agencyDigit: acc.agencyDigit,
+              accountNumber: acc.accountNumber,
+              accountNumberDigit: acc.accountNumberDigit,
+              accountDac: acc.accountDac,
+              convenioNumber: acc.convenioNumber,
+              remessaSequential: acc.remessaSequential,
+						});
+						payerAccountRepository.save(payerAccount);
+						payerAccountResult.push(payerAccount);
+					})
+
+					return response.json({ oncar: payer, payerAccountResult, technoSpeed: res.data  });
 				} catch (err) {
 					console.log(err);
 					return response.status(500).json({error: 'Falha ao sincronizar dados com o banco. Tente novamente.'})
 				}
 			}
-    return response.status(201).json(res.data);
   	} catch (err) {
 			console.log(err.response ? err.response.data.errors : err);
       return response.status(err.response.data.code).json({
@@ -61,7 +81,7 @@ export default {
 
 	 async verifyPayer(request: Request, response: Response) {
 		 try {
-			 const { cpfCnpj } = await request.query;
+			 const { cpfCnpj } = request.query;
 
 			 const payerRepository = getRepository(Payers);
 			 const payer = await payerRepository.findOne({ cpfCnpj: cpfCnpj?.toString() });
@@ -86,10 +106,12 @@ export default {
          cpfCnpj: cpfCnpj?.toString(),
        });
      	console.log(err.response ? err.response : err);
-     	return response.status(err.response.data.code).json({
-					technoSpeed: err.response.data.message,
-					oncar: payer
-	 		});
+     	return response
+        .status(payer != undefined ? 200 : err.response.data.code)
+        .json({
+          technoSpeed: err.response.data.message,
+          oncar: payer != undefined ? payer : "Pagador não encontrado",
+        });
    	}
    }
 };
