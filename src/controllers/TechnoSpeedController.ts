@@ -47,8 +47,10 @@ export default {
             token,
 					});
 
-					var payerAccountResult = [];
-					accounts.map(acc => {
+					await payerRepository.save(payer)
+					let payerAccountResult: (PayerAccount & PayerAccount[])[] = [];
+
+					accounts.map((acc: { bankCode: any; agency: any; agencyDigit: any; accountNumber: any; accountNumberDigit: any; accountDac: any; convenioNumber: any; remessaSequential: any; }) => {
 						const payerAccount = payerAccountRepository.create({
 							payer_id: payer.id,
               bankCode: acc.bankCode,
