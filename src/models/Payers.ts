@@ -1,30 +1,39 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-
+@Entity("payers")
 export default class Payers {
-    @PrimaryGeneratedColumn('increment')
-    id: number;
+  @PrimaryGeneratedColumn("increment")
+  id: number;
 
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @Column()
-    street: string;
+  @Column()
+  cpfCnpj: string;
 
-    @Column()
-    city: string;
+  @Column()
+  street: string;
 
-    @Column()
-    state: string;
+  @Column()
+  addressNumber: number;
 
-    @Column()
-    zipcode: number;
+  @Column()
+  neighborhood: string;
 
-    @Column()
-    token: string;
+  @Column()
+  city: string;
 
-    @Column({ default: () => `now()` })
-    createdAt: string;
+  @Column()
+  state: string;
 
-    @Column({ default: () => `now()` })
-    updatedAt: string;
+  @Column()
+  zipcode: number;
+
+  @Column()
+  token: string;
+
+  @Column({ default: () => `now()` })
+  createdAt: string;
+
+  @Column({ default: () => `now()` })
+  updatedAt: string;
 }
